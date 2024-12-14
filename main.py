@@ -65,3 +65,5 @@ while count * 4 < SAMPLE_SIZE:
 
 
 video_feed.release()
+
+print("Finished!")
