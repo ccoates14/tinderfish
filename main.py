@@ -3,8 +3,7 @@ import time
 from camera import Camera
 from fish_position_image_analyze import FishPositionImageAnalyze
 from screen_interactor import ScreenInteractor
-
-# take a sample pic
+import time
 
 def wait_for_camera_access(camera_index):
     print("Waiting for camera authorization...")
@@ -19,22 +18,50 @@ def wait_for_camera_access(camera_index):
         cap.release()
         time.sleep(2)  # Wait for 2 seconds before retrying
 
+def swipe_left_or_right(direction):
+    mouse_start_x = 3200
+    mouse_start_y = 500
+    screen_interactor = ScreenInteractor(mouse_start_x, mouse_start_y)
+    if direction == "left":
+        screen_interactor.swipe_left()
+    else:
+        screen_interactor.swipe_right()
 
-# video_feed = wait_for_camera_access(0)
-# camera = Camera(video_feed)
+video_feed = wait_for_camera_access(0)
+# call back after .25 seconds
+pic_num = 0
+left_side_count = 0
+MAX_PICS = 40
 
-# pic_num = 0
-# camera.take_picture(pic_num)
+SECONDS_IN_HOUR = 3600
 
-# video_feed.release()
+SAMPLE_SIZE = SECONDS_IN_HOUR * 4
+count = 0
 
-# fish_position_image_analyze = FishPositionImageAnalyze("fishright.jpg")
+while count * 4 < SAMPLE_SIZE:
+    camera = Camera(video_feed)
+    camera.take_picture(pic_num)
 
-# fish_position_image_analyze.determine_goldfish_position()
+    pic_num += 1
 
-mouse_start_x = 3200
-mouse_start_y = 500
-screen_interactor = ScreenInteractor(mouse_start_x, mouse_start_y)
+    if pic_num > MAX_PICS:
+        for i in range(MAX_PICS):
+            fish_position_image_analyze = FishPositionImageAnalyze("capture_img" + str(pic_num) + ".jpg")
+            if fish_position_image_analyze.is_goldfish_left_side():
+                left_side_count += 1
+        
+        if left_side_count > MAX_PICS / 2:
+            swipe_left_or_right("left")
+            print("swipe left")
+        else:
+            swipe_left_or_right("right")
+            print("swipe right")
+        
+        pic_num = 0
+        left_side_count = 0
 
-screen_interactor.print_screen_dimensions()
-screen_interactor.swipe_right()
+    time.sleep(0.25)
+    count += 1
+
+
+video_feed.release()
