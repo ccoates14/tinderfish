@@ -46,7 +46,7 @@ while count * 4 < SAMPLE_SIZE:
 
     if pic_num > MAX_PICS:
         for i in range(MAX_PICS):
-            fish_position_image_analyze = FishPositionImageAnalyze("capture_img" + str(pic_num) + ".jpg")
+            fish_position_image_analyze = FishPositionImageAnalyze("capture_img" + str(i) + ".jpeg")
             if fish_position_image_analyze.is_goldfish_left_side():
                 left_side_count += 1
         
